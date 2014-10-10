@@ -1,0 +1,18 @@
+body {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.topbar {
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dialog::shadow paper-dialog {
+    width: 300px;
+}
+

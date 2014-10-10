@@ -1,0 +1,78 @@
+<link rel="import" href="http://www.polymer-project.org/components/polymer/polymer.html">
+<script type="text/javascript" src="//vk.com/js/api/openapi.js" ></script>
+<polymer-element name="vk-service" attributes="loggedIn">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+  </template>
+  <script>
+    (function() {
+      VK.init({apiId: 4017268});
+      var vkService = Object.create({
+        instances: [],
+        loggedIn: false,
+        registerInstance: function(instance) {
+           this.instances.push(instance);
+           instance.setLoggedIn(this.loggedIn);
+        },
+        checkLoggedIn: function() {
+          var self = this;
+          VK.Auth.getLoginStatus(function (response) {
+            self.setLoggedIn(!!response.session);
+          });
+        },
+        setLoggedIn: function(loggedIn) {
+          this.loggedIn = loggedIn;
+          this.instances.forEach(function(instance) {
+            instance.setLoggedIn(loggedIn);
+          });
+        },
+        request: function(method, params) {
+          return new Promise(function(resolve, reject) {
+            VK.Api.call(method, Polymer.mixin({v: '5.25', lang: 'en'}, params), function(r) {
+              if(r.response) {
+                resolve(r.response);
+              }
+              else {
+                reject(r);
+              }
+            })
+          });
+        },
+        login: function() {
+          var self = this;
+          VK.Auth.login(function (response) {
+            self.setLoggedIn(!!response.session);
+          }, 8);
+        },
+        logout: function() {
+          var self = this;
+          VK.Auth.logout(function() {
+            self.setLoggedIn(false);
+          })
+        }
+      });
+
+      vkService.checkLoggedIn();
+
+      Polymer('vk-service', {
+        created: function() {
+          vkService.registerInstance(this);
+        },
+        setLoggedIn: function(loggedIn) {
+          this.loggedIn = loggedIn;
+          this.fire('vk-login-changed', loggedIn);
+        },
+        loginUpdated: function() {
+          console.log('observe works')
+        },
+        request: vkService.request.bind(vkService),
+        login: vkService.login.bind(vkService),
+        logout: vkService.logout.bind(vkService)
+      });
+    })();
+  </script>
+</polymer-element>

@@ -1,0 +1,73 @@
+<link rel="import" href="http://www.polymer-project.org/components/polymer/polymer.html">
+
+<polymer-element name="likes-box" attributes="opened">
+  <template>
+    <style>
+      paper-dialog {
+        text-align: center;
+      }
+
+      paper-dialog hr {
+        border-bottom: 1px solid #c2c2c2;
+      }
+
+      paper-dialog .text {
+        font-size: 1.2em;
+        margin-bottom: 0;
+      }
+
+      paper-dialog .likes {
+        color: #2B587A;
+        font-size: 3em;
+        font-weight: bold;
+        margin: 0.3em;
+      }
+    </style>
+    <vk-service id="vk"></vk-service>
+    <paper-dialog
+        heading="{{profile.first_name}} {{profile.last_name}}"
+        on-core-overlay-open="{{onShow}}"
+        autoCloseDisabled="true"
+        opened="{{opened}}">
+      <p class="text">You have</p>
+      <h1 class="likes">{{likes}}</h1>
+      <p class="text">likes</p>
+    </paper-dialog>
+  </template>
+  <script>
+    (function() {
+      "use strict";
+      var PAGE_SIZE = 100;
+      Polymer({
+        onShow: function() {
+          var self = this;
+          this.loadProfile(function(profile) {
+            self.profile = profile[0];
+            self.countLikes();
+          });
+        },
+        loadProfile: function (callback) {
+          this.$.vk.request('users.get', {fields:"domain"}).then(callback)
+        },
+        countLikes: function() {
+          function onPostLoaded(response) {
+            response.items.forEach(function(post) {
+              self.likes += post.likes.count;
+            });
+            page++;
+            if(page*PAGE_SIZE < response.count) {
+              self.requestPosts(page, onPostLoaded)
+            }
+          }
+          var self = this,
+              page = 0;
+          self.likes = 0;
+          this.requestPosts(0, onPostLoaded)
+        },
+        requestPosts: function(offset, callback) {
+          this.$.vk.request('wall.get', {filter: 'owner', count: PAGE_SIZE, offset: offset*PAGE_SIZE}).then(callback)
+        }
+      });
+    })();
+  </script>
+</polymer-element>

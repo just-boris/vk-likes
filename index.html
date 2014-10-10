@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>O my likes!</title>
+    <script src="http://www.polymer-project.org/components/platform/platform.js"></script>
+    <!--<link rel="import" href="http://www.polymer-project.org/components/core-elements/core-elements.html">-->
+    <link rel="import" href="http://www.polymer-project.org/components/paper-elements/paper-elements.html">
+    <link rel="import" href="http://www.polymer-project.org/components/font-roboto/roboto.html">
+
+
+    <link rel="import" href="vk-service.html">
+    <link rel="import" href="login-dialog.html">
+    <link rel="import" href="likes-box.html">
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body fullbleed layout vertical unresolved>
+    <vk-service id="service"></vk-service>
+    <div class="topbar">
+      <paper-button raised id="logoutBtn" hidden>Logout</paper-button>
+    </div>
+
+
+    <login-dialog id="loginDialog" class="dialog"></login-dialog>
+    <likes-box id="likesBox" class="dialog"></likes-box>
+
+    <script type="text/javascript">
+      var service = document.querySelector('#service'),
+          logout = document.querySelector('#logoutBtn');
+
+      service.addEventListener('vk-login-changed', function() {
+        document.querySelector('#loginDialog').opened = !service.loggedIn;
+        document.querySelector('#likesBox').opened = service.loggedIn;
+        logout.hidden = !service.loggedIn
+      });
+
+      logout.addEventListener('click', function() {
+          service.logout();
+      });
+
+    </script>
+</body>
+</html>
