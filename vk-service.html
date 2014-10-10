@@ -32,6 +32,11 @@
         },
         request: function(method, params) {
           return new Promise(function(resolve, reject) {
+            Object.keys(params).forEach(function (key) {
+              if(params[key] === null) {
+                delete params[key]
+              }
+            });
             VK.Api.call(method, Polymer.mixin({v: '5.25', lang: 'en'}, params), function(r) {
               if(r.response) {
                 resolve(r.response);

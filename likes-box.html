@@ -21,6 +21,7 @@
         font-size: 3em;
         font-weight: bold;
         margin: 0.3em;
+        white-space: nowrap;
       }
     </style>
     <vk-service id="vk"></vk-service>
@@ -29,8 +30,8 @@
         on-core-overlay-open="{{onShow}}"
         autoCloseDisabled="true"
         opened="{{opened}}">
-      <p class="text">You have</p>
-      <h1 class="likes">{{likes}}</h1>
+      <p class="text">has</p>
+      <h1 class="likes">{{ formatNumber(likes) }}</h1>
       <p class="text">likes</p>
     </paper-dialog>
   </template>
@@ -39,15 +40,20 @@
       "use strict";
       var PAGE_SIZE = 100;
       Polymer({
+        likes: 0,
         onShow: function() {
           var self = this;
+          this.domain = location.search.substring(1) || null;
           this.loadProfile(function(profile) {
             self.profile = profile[0];
             self.countLikes();
           });
         },
+        formatNumber: function(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        },
         loadProfile: function (callback) {
-          this.$.vk.request('users.get', {fields:"domain"}).then(callback)
+          this.$.vk.request('users.get', {user_ids: this.domain}).then(callback)
         },
         countLikes: function() {
           function onPostLoaded(response) {
@@ -65,7 +71,7 @@
           this.requestPosts(0, onPostLoaded)
         },
         requestPosts: function(offset, callback) {
-          this.$.vk.request('wall.get', {filter: 'owner', count: PAGE_SIZE, offset: offset*PAGE_SIZE}).then(callback)
+          this.$.vk.request('wall.get', {domain: this.domain, filter: 'owner', count: PAGE_SIZE, offset: offset*PAGE_SIZE}).then(callback)
         }
       });
     })();
