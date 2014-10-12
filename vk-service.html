@@ -51,7 +51,7 @@
           var self = this;
           VK.Auth.login(function (response) {
             self.setLoggedIn(!!response.session);
-          }, 8);
+          });
         },
         logout: function() {
           var self = this;
